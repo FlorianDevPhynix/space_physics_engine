@@ -1,0 +1,19 @@
+[workspace]
+members = ["integrations/c"]
+
+[workspace.package]
+authors = ["Florian Stemmler"]
+edition = "2021"
+repository = ""
+
+[workspace.dependencies]
+
+[package]
+name = "space-physics-engine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thiserror = "1.0.49"
+
+[lib]
