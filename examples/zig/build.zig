@@ -38,15 +38,15 @@ pub fn build(b: *std.Build) void {
     const mode = comptime Mode.Debug;
 
     // build library
-    const c_lib_build = b.addSystemCommand(&[_][]const u8{ "cargo", "build", "-p", "c_space_physics_engine" });
+    const c_lib_build = b.addSystemCommand(&[_][]const u8{ "cargo", "build", "-p", "space_physics_engine", "--features", "ffi_compile" });
     if (mode == .Release) {
         c_lib_build.addArg("--release");
     }
     c_lib_build.setName("cargo build");
 
     // build library c header file
-    const c_lib_generate = b.addSystemCommand(&[_][]const u8{ "cargo", "run", "-p", "c_space_physics_engine", "--features", "headers", "--bin", "generate-headers" });
-    //const c_lib_generate = b.addSystemCommand(&[_][]const u8{ "cargo", "test", "-p", "c_space_physics_engine", "--features", "headers", "--", "generate_headers" });
+    const c_lib_generate = b.addSystemCommand(&[_][]const u8{ "cargo", "run", "-p", "space_physics_engine", "--features", "headers", "--bin", "generate-headers" });
+    //const c_lib_generate = b.addSystemCommand(&[_][]const u8{ "cargo", "test", "-p", "space_physics_engine", "--features", "headers", "--", "generate_headers" });
     c_lib_generate.cwd = "../../";
     c_lib_generate.setName("cargo run header-generate");
     c_lib_generate.step.dependOn(&c_lib_build.step);
@@ -64,15 +64,15 @@ pub fn build(b: *std.Build) void {
     //    .name = "space_physics_engine",
     //    .target = target,
     //    .optimize = optimize,
-    //    .root_source_file = .{ .path = "../../target/release/libc_space_physics_engine.a" },
+    //    .root_source_file = .{ .path = "../../target/release/libspace_physics_engine.a" },
     //});
     //lib.step.dependOn(&c_lib_generate.step);
 
     exe.addLibraryPath(.{ .path = std.fmt.comptimePrint("../../target/{s}/", .{comptime mode.into()}) });
-    exe.linkSystemLibrary("c_space_physics_engine");
+    exe.linkSystemLibrary("space_physics_engine");
     exe.linkLibC();
     exe.linkLibCpp();
-    exe.addIncludePath(.{ .path = "../../integrations/c/headers/" });
+    exe.addIncludePath(.{ .path = "../../target/headers/" });
     exe.step.dependOn(&c_lib_generate.step);
 
     // This declares intent for the executable to be installed into the
@@ -112,10 +112,10 @@ pub fn build(b: *std.Build) void {
     });
 
     unit_tests.addLibraryPath(.{ .path = std.fmt.comptimePrint("../../target/{s}/", .{comptime mode.into()}) });
-    unit_tests.linkSystemLibrary("c_space_physics_engine");
+    unit_tests.linkSystemLibrary("space_physics_engine");
     unit_tests.linkLibC();
     unit_tests.linkLibCpp();
-    unit_tests.addIncludePath(.{ .path = "../../integrations/c/headers/" });
+    unit_tests.addIncludePath(.{ .path = "../../src/headers/" });
     unit_tests.step.dependOn(&c_lib_generate.step);
 
     const run_unit_tests = b.addRunArtifact(unit_tests);

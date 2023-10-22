@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "../../integrations/c/headers/space_physics_engine.h"
+#include "../../target/headers/space_physics_engine.h"
 
 int main (int argc, char const * const argv[])
 {

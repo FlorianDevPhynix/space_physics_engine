@@ -1,8 +1,28 @@
 # space_physics_engine
 
+## Use
+
+### From Rust
+
+Run `cargo add space_physics_engine` in your rust project or
+add `space_physics_engine = "0.1.0"` to your *Cargo.toml*.
+
+### Any C ABI compatible Programming Language
+
+Clone or download the repository and compile it as a ffi static library using
+`cargo build --features ffi_compile --release` with the binary output in `target/release`.
+The header file can be generated with `cargo run --features headers --bin generate-headers`.
+Those files will be in the `target/headers/` folder.
+
 ## Examples
 
-Currently there is a C and Zig example.
+Currently there are Rust, C and Zig examples.
+
+### Rust
+
+`cargo build -p rust_example`
+
+`cargo run -p rust_example`
 
 ### C
 

@@ -4,11 +4,12 @@ fn main() -> ::std::io::Result<()> {
     let mut parent = std::env::current_dir()?;
     while parent.file_name() != Some(OsStr::new("space_physics_engine")) {
         parent.pop();
+        //println!("{}", parent.display());
     };
-    let path = parent.join("integrations/c/headers/");
+    let path = parent.join("target/headers/");
     //println!("{}", path.display());
     #[cfg(feature = "headers")]
-    return c_space_physics_engine::generate(path);
+    return space_physics_engine::generate(path);
     #[cfg(not(feature = "headers"))]
     {
         println!("feature header is not enabled");

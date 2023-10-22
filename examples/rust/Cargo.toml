@@ -1,0 +1,8 @@
+[package]
+name = "rust_example"
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+space_physics_engine.workspace = true

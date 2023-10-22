@@ -15,9 +15,6 @@ Cargo.lock
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
 
-# generated c header file
-integrations/c/headers
-
 # c example output
 out/
 
