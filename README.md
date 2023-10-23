@@ -1,5 +1,9 @@
 # space_physics_engine
 
+## WIP
+
+This project is in a very early stage, so expect breaking changes.
+
 ## Use
 
 ### From Rust
