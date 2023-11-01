@@ -12,6 +12,12 @@ pub fn main() !void {
     space_physics_engine.print_point(&a);
     space_physics_engine.print_point(&b);
     space_physics_engine.print_point(&m);
+
+    const sim = space_physics_engine.new_Simulation(30);
+    std.debug.print("sim: {d}\n", .{@intFromPtr(sim.?)});
+    space_physics_engine.sim_simulate(sim, 1.2);
+    space_physics_engine.sim_free(sim);
+    std.debug.print("sim: {d}", .{@intFromPtr(sim.?)});
 }
 
 test "simple test" {

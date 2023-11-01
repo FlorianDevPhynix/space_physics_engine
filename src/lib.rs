@@ -1,3 +1,4 @@
+use safer_ffi::prelude::repr_c;
 use safer_ffi_deactivate::{ ffi_export, derive_ReprC };
 
 /// A `struct` usable from both Rust and C
@@ -24,9 +25,40 @@ pub fn print_point(point: &Point) {
     println!("{:?}", point);
 }
 
-#[test]
-fn second() {
-    ;
+#[::safer_ffi_deactivate::derive_ReprC(opaque)]
+#[derive(Debug)]
+struct Simulation {
+    sim_speed: f32,
+}
+
+impl Simulation {
+    fn new(sim_speed: f32) -> Simulation {
+        Simulation{ sim_speed }
+    }
+
+    fn simulate(self: &Self, delta: f32) {
+        println!("simulation speed = {}; delta = {}", self.sim_speed, delta);
+    }
+}
+
+#[allow(dead_code)]
+#[allow(non_snake_case)]
+#[::safer_ffi_deactivate::ffi_export]
+fn new_Simulation(sim_speed: f32) -> repr_c::Box<Simulation> {
+    Box::new(Simulation::new(sim_speed)).into()
+}
+
+#[allow(dead_code)]
+#[::safer_ffi_deactivate::ffi_export]
+fn sim_simulate(sim: &'_ Simulation, delta: f32) {
+    Simulation::simulate(sim, delta);
+}
+
+#[allow(dead_code)]
+#[ffi_export]
+fn sim_free(sim: repr_c::Box<Simulation>)
+{
+    drop(sim);
 }
 
 // The following function is only necessary for the header generation.
