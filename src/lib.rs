@@ -1,6 +1,25 @@
 use safer_ffi::prelude::repr_c;
 use safer_ffi_deactivate::{ ffi_export, derive_ReprC };
 
+pub mod gravity;
+pub mod pmo;
+pub mod dso;
+
+pub mod math{
+    pub use glam::*;
+
+    pub mod prelude {
+        pub use glam::{
+            DQuat, dquat,
+            DVec2, DVec3, DVec4, dvec2, dvec3, dvec4,
+            DMat2, DMat3, DMat4, dmat2, dmat3, dmat4,
+            DAffine2, DAffine3,
+        };
+    }
+}
+
+use math::prelude::*;
+
 /// A `struct` usable from both Rust and C
 #[derive_ReprC(C)]
 #[derive(Debug, Clone, Copy)]
@@ -39,6 +58,44 @@ impl Simulation {
     fn simulate(self: &Self, delta: f32) {
         println!("simulation speed = {}; delta = {}", self.sim_speed, delta);
     }
+
+    fn get_transform(self: &Self) -> DVec3 {
+        DVec3 { x: 0.0, y: 1.0, z: 1.0 }
+    }
+}
+
+pub mod util {
+    pub mod clamp {
+        use crate::math::prelude::*;
+        use crate::math::Vec3;
+
+        pub fn calc_percentage(max_distance: f32, towards: DVec3, point: DVec3) -> f32 {
+            let distance = towards.distance(point);
+            let result = max_distance as f64 * 100.0 / distance;
+            if result < f32::MAX as f64 {
+                result as f32
+            } else {
+                println!("calc_percentage result is bigger than f32");
+                f32::MAX
+            }
+        }
+
+        pub fn calc_vec3_percentage(max_distance: f32, towards: Vec3, point: DVec3) -> f32 {
+            calc_percentage(max_distance, towards.as_dvec3(), point)
+        }
+
+        pub fn bring_closer(percentage: f32, towards: DVec3, point: DVec3) -> Vec3 {
+            point.lerp(towards, (100.0 - percentage as f64) / 100.0).as_vec3()
+        }
+
+        pub fn bring_vec3_closer(percentage: f32, towards: Vec3, point: DVec3) -> Vec3 {
+            bring_closer(percentage, towards.as_dvec3(), point)
+        }
+
+        pub fn calc_scale(percentage: f32, scale: DVec3) -> Vec3 {
+            (percentage as f64 * scale / 100.0).as_vec3()
+        }
+    }
 }
 
 #[allow(dead_code)]
@@ -53,6 +110,12 @@ fn new_Simulation(sim_speed: f32) -> repr_c::Box<Simulation> {
 fn sim_simulate(sim: &'_ Simulation, delta: f32) {
     Simulation::simulate(sim, delta);
 }
+
+/* #[allow(dead_code)]
+#[::safer_ffi_deactivate::ffi_export]
+fn sim_get_transform(sim: &'_ Simulation) -> DVec3 {
+    Simulation::get_transform(sim)
+} */
 
 #[allow(dead_code)]
 #[ffi_export]

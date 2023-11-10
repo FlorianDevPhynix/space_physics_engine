@@ -15,6 +15,7 @@ int main (int argc, char const * const argv[])
     Simulation_t* sim = new_Simulation(1.0f);
     printf("%p\n", (void *)sim);
     sim_simulate(sim, 1.2f);
+    sim_get_transform(sim);
     sim_free(sim);
     printf("%p\n", (void *)sim);
 

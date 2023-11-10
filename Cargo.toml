@@ -11,6 +11,10 @@ space_physics_engine = { path = "." }
 
 [package]
 name = "space_physics_engine"
+description = "A space physics engine"
+repository = "https://github.com/"
+license = "MIT OR Apache-2.0"
+keywords = ["physics"]
 version = "0.1.0"
 edition = "2021"
 
@@ -26,7 +30,15 @@ thiserror = "1.0.49"
 safer-ffi = "0.1.3"
 safer-ffi-deactivate = { path = "src/safer-ffi-deactivate" }
 
+glam = { version = "0.24", features = ["bytemuck"] }
+serde = { version = "1", features = ["derive"], optional = true }
+
 [features]
 #default = ["headers"]
 headers = ["safer-ffi/headers", "ffi_compile"]
 ffi_compile = ["safer-ffi-deactivate/ffi_compile"]
+serialize = ["dep:serde", "glam/serde"]
+# Enable interoperation of glam types with mint-compatible libraries
+mint = ["glam/mint"]
+# Enable assertions to check the validity of parameters passed to glam
+glam_assert = ["glam/glam-assert"]
