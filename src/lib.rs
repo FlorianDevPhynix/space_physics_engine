@@ -1,6 +1,8 @@
 use safer_ffi::prelude::repr_c;
 use safer_ffi_deactivate::{ ffi_export, derive_ReprC };
 
+pub mod util;
+pub mod units;
 pub mod gravity;
 pub mod pmo;
 pub mod dso;
@@ -20,31 +22,7 @@ pub mod math{
 
 use math::prelude::*;
 
-/// A `struct` usable from both Rust and C
-#[derive_ReprC(C)]
-#[derive(Debug, Clone, Copy)]
-pub struct Point {
-    pub x: f64,
-    pub y: f64,
-}
-
-/* Export a Rust function to the C world. */
-/// Returns the middle point of `[a, b]`.
-#[ffi_export]
-pub fn mid_point(a: &Point, b: &Point) -> Point {
-    Point {
-        x: (a.x + b.x) / 2.,
-        y: (a.y + b.y) / 2.,
-    }
-}
-
-/// Pretty-prints a point using Rust's formatting logic.
-#[ffi_export]
-pub fn print_point(point: &Point) {
-    println!("{:?}", point);
-}
-
-#[::safer_ffi_deactivate::derive_ReprC(opaque)]
+#[derive_ReprC(opaque)]
 #[derive(Debug)]
 struct Simulation {
     sim_speed: f32,
@@ -64,49 +42,15 @@ impl Simulation {
     }
 }
 
-pub mod util {
-    pub mod clamp {
-        use crate::math::prelude::*;
-        use crate::math::Vec3;
-
-        pub fn calc_percentage(max_distance: f32, towards: DVec3, point: DVec3) -> f32 {
-            let distance = towards.distance(point);
-            let result = max_distance as f64 * 100.0 / distance;
-            if result < f32::MAX as f64 {
-                result as f32
-            } else {
-                println!("calc_percentage result is bigger than f32");
-                f32::MAX
-            }
-        }
-
-        pub fn calc_vec3_percentage(max_distance: f32, towards: Vec3, point: DVec3) -> f32 {
-            calc_percentage(max_distance, towards.as_dvec3(), point)
-        }
-
-        pub fn bring_closer(percentage: f32, towards: DVec3, point: DVec3) -> Vec3 {
-            point.lerp(towards, (100.0 - percentage as f64) / 100.0).as_vec3()
-        }
-
-        pub fn bring_vec3_closer(percentage: f32, towards: Vec3, point: DVec3) -> Vec3 {
-            bring_closer(percentage, towards.as_dvec3(), point)
-        }
-
-        pub fn calc_scale(percentage: f32, scale: DVec3) -> Vec3 {
-            (percentage as f64 * scale / 100.0).as_vec3()
-        }
-    }
-}
-
 #[allow(dead_code)]
 #[allow(non_snake_case)]
-#[::safer_ffi_deactivate::ffi_export]
+#[ffi_export]
 fn new_Simulation(sim_speed: f32) -> repr_c::Box<Simulation> {
     Box::new(Simulation::new(sim_speed)).into()
 }
 
 #[allow(dead_code)]
-#[::safer_ffi_deactivate::ffi_export]
+#[ffi_export]
 fn sim_simulate(sim: &'_ Simulation, delta: f32) {
     Simulation::simulate(sim, delta);
 }

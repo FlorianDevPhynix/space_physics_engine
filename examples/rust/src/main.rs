@@ -1,9 +1,13 @@
 use space_physics_engine::{
-    math::{prelude::*, Vec3, Mat3, mat3, vec3, vec2},
-    util::clamp::{
-        calc_vec3_percentage, 
-        bring_vec3_closer, calc_scale
-    }
+    math::{prelude::*, Vec3},
+    units::SolarRadius,
+    util::{
+        UniqueIndexIterator,
+        clamp::{
+            calc_vec3_percentage,
+            bring_vec3_closer, calc_scale
+        }
+    },
 };
 
 fn main() {
@@ -28,38 +32,24 @@ fn main() {
     let new_angle = f32::atan(closer_planet_scale.x / from_cam_towards_newplanet.length());
     println!("angle to planet border: original={}; new={}", original_angle.to_degrees() as f32, new_angle.to_degrees());
 
-    fn new_translation(dx: f32, dy: f32) -> Mat3 {
-        mat3(
-            vec3(1.0, 0.0, 0.0),
-            vec3(0.0, 1.0, 0.0),
-            vec3(dx, dy, 1.0)
-        )
-    }
-    fn new_rotation(winkel: f32) -> Mat3 {
-        mat3(
-            vec3(f32::cos(winkel), f32::sin(winkel), 0.0),
-            vec3(-f32::sin(winkel), f32::cos(winkel), 0.0),
-            vec3(0.0, 0.0, 1.0)
-        )
-    }
-
-    let t_person = new_translation(-20.0, -6.0);
-    let t_fahrzeug = new_translation(-10.0, -3.0);
-    let r_fahrzeug = new_rotation(17.0);
-    let p_scheinwerfer = vec3(1.5, 0.0, 1.0);
-
-    let p_fahrzeug_lokal = t_person * t_fahrzeug * r_fahrzeug * p_scheinwerfer;
-    //(-28.57, -8.57, 1)
-    println!("\nscheinwerfer in person lokal={}", p_fahrzeug_lokal);
-
-
     use space_physics_engine::pmo::PlanetaryMassObject;
     let pmos = vec![
-        PlanetaryMassObject::new(1000.0, 1.0),
-        PlanetaryMassObject::new(1000.0, 1.0),
-        PlanetaryMassObject::new(1000.0, 1.0),
+        PlanetaryMassObject::new(dvec3(5000.0, 5000.0, 5000.0), SolarRadius(1000.0), 1.0),
+        PlanetaryMassObject::new(DVec3::ZERO, SolarRadius(1000.0), 1.0),
+        PlanetaryMassObject::new(dvec3(5000.0, 0.0, 0.0), SolarRadius(1000.0), 1.0),
+        PlanetaryMassObject::new(dvec3(0.0, 5000.0, 0.0), SolarRadius(1000.0), 1.0),
+        PlanetaryMassObject::new(dvec3(0.0, 0.0, 5000.0), SolarRadius(1000.0), 1.0),
     ];
-    space_physics_engine::pmo::calc_gravity_forces(pmos);
+    println!("UniqueIndexIterator::length={}", UniqueIndexIterator::new(pmos.len()).length());
+    println!("complex_length={:?}", UniqueIndexIterator::new(21).complex_length());
+    space_physics_engine::pmo::calc_gravity_forces(&pmos);
+    println!("{:?}", pmos);
+
+    println!("{}", f32::MAX);
+    println!("{}", f64::MAX);
+    println!("{}", SolarRadius(40_000.0).in_meters());
+    println!("{}", 880_000_000_000_000_000_000_000_000_f32);
+    println!("{}", space_physics_engine::pmo::calc_volume(SolarRadius(40_000.0).in_meters()));
 }
 
 #[cfg(test)]
@@ -109,5 +99,34 @@ mod test {
         let b = mat * vec3(0.7, 0.4, 1.0);
         let c = mat * vec3(0.7, 0.7, 1.0);
         println!("A={}; B={}; C={}", a, b, c);
+    }
+
+    #[test]
+    fn scene_graph_calculation() {
+        use space_physics_engine::math::{Mat3, mat3, vec3};
+        fn new_translation(dx: f32, dy: f32) -> Mat3 {
+            mat3(
+                vec3(1.0, 0.0, 0.0),
+                vec3(0.0, 1.0, 0.0),
+                vec3(dx, dy, 1.0)
+            )
+        }
+
+        fn new_rotation(winkel: f32) -> Mat3 {
+            mat3(
+                vec3(f32::cos(winkel), f32::sin(winkel), 0.0),
+                vec3(-f32::sin(winkel), f32::cos(winkel), 0.0),
+                vec3(0.0, 0.0, 1.0)
+            )
+        }
+
+        let t_person = new_translation(-20.0, -6.0);
+        let t_fahrzeug = new_translation(-10.0, -3.0);
+        let r_fahrzeug = new_rotation(17.0);
+        let p_scheinwerfer = vec3(1.5, 0.0, 1.0);
+
+        let p_fahrzeug_lokal = t_person * t_fahrzeug * r_fahrzeug * p_scheinwerfer;
+        //(-28.57, -8.57, 1)
+        println!("\nscheinwerfer in person lokal={}", p_fahrzeug_lokal);
     }
 }
